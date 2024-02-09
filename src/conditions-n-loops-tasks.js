@@ -449,8 +449,8 @@ function shuffleChar(str, iterations) {
   const len = str.length;
   let countIterations = 0;
   let shuffleStr = str;
-  let oddPart = '';
-  let evenPart = '';
+  let oddPart;
+  let evenPart;
   const shuffles = {};
   shuffles[0] = str;
   do {
@@ -466,6 +466,24 @@ function shuffleChar(str, iterations) {
   } while (shuffleStr !== str);
 
   return shuffles[iterations % countIterations];
+}
+
+function smallestGreaterInd(arr, ind, digit, len) {
+  const rightPartNumb = arr.slice(ind);
+  let minInd = 0;
+  for (let i = 0; i < rightPartNumb.length; i += 1) {
+    const value = rightPartNumb[i];
+    if (value < rightPartNumb[minInd] && value > digit) {
+      minInd = i;
+    }
+  }
+  return len - rightPartNumb.length + minInd;
+}
+
+function concatDigitsPart(arr, i) {
+  const leftPart = arr.slice(0, i);
+  const rightPart = sortByAsc(arr.slice(i));
+  return [...leftPart, ...rightPart];
 }
 
 /**
@@ -485,8 +503,27 @@ function shuffleChar(str, iterations) {
  * @param {number} number The source number
  * @returns {number} The nearest larger number, or original number if none exists.
  */
-function getNearestBigger(/* number */) {
-  throw new Error('Not implemented');
+function getNearestBigger(number) {
+  let digits = Array.from(String(number));
+  const lengthNumb = digits.length;
+  for (let i = lengthNumb - 1; i > 0; i -= 1) {
+    if (digits[i - 1] < digits[i]) {
+      const minRightPartInd = smallestGreaterInd(
+        digits,
+        i,
+        digits[i - 1],
+        lengthNumb
+      );
+
+      const temp = digits[minRightPartInd];
+      digits[minRightPartInd] = digits[i - 1];
+      digits[i - 1] = temp;
+      digits = concatDigitsPart(digits, i);
+      break;
+    }
+    if (i === 1) return number;
+  }
+  return parseInt(digits.join(''), 10);
 }
 
 module.exports = {
