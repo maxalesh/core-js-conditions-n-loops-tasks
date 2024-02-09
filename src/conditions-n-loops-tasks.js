@@ -373,14 +373,40 @@ function rotateMatrix(matrix) {
   return resMatrix;
 }
 
-function removeEmptyValue(arr) {
-  const res = [];
-  for (let i = 0; i < arr.length; i += 1) {
-    if (arr[i].length !== 0) {
-      res[res.length] = arr[i];
+function swap(arr, left, right) {
+  const copyArr = arr;
+  const temp = arr[left];
+  copyArr[left] = arr[right];
+  copyArr[right] = temp;
+}
+
+function partition(arr, start, stop) {
+  let ind = start;
+  const pivot = arr[start];
+
+  for (let j = start; j <= stop; j += 1) {
+    if (pivot >= arr[j]) {
+      swap(arr, ind, j);
+      ind += 1;
     }
   }
-  return res.flat();
+
+  swap(arr, ind - 1, start);
+  return ind - 1;
+}
+
+function partitionRand(arr, start, stop) {
+  const randPivot = Math.floor(Math.random() * (stop - start + 1) + start);
+  swap(arr, randPivot, start);
+  return partition(arr, start, stop);
+}
+
+function quicksort(arr, start, stop) {
+  if (start >= stop) return;
+
+  const pivot = partitionRand(arr, start, stop);
+  quicksort(arr, start, pivot - 1);
+  quicksort(arr, pivot + 1, stop);
 }
 
 /**
@@ -398,26 +424,8 @@ function removeEmptyValue(arr) {
  *  [-2, 9, 5, -3]  => [-3, -2, 5, 9]
  */
 function sortByAsc(arr) {
-  let copyArr = arr;
-  const maxDigits = `${Math.abs(Math.max(...arr))}`.length;
-  const base = 10;
-  const bins = [];
-  for (let n = 0; n < 10; n += 1) {
-    bins[n] = [];
-  }
-
-  for (let i = 0; i < maxDigits; i += 1) {
-    for (let j = 0; j < copyArr.length; j += 1) {
-      const digit = Math.floor(Math.abs(copyArr[j]) / base ** i) % base;
-      const lengthBinsDigit = bins[digit].length;
-      bins[digit][lengthBinsDigit] = copyArr[j];
-    }
-    copyArr = removeEmptyValue(bins);
-    for (let n = 0; n < 10; n += 1) {
-      bins[n] = [];
-    }
-  }
-  return copyArr;
+  quicksort(arr, 0, arr.length - 1);
+  return arr;
 }
 
 /**
